@@ -10,7 +10,7 @@
 
     <application
         android:allowBackup="true"
-        android:label="تطبيق عدل للمحاماة — كتابة 150 سؤالًا مرجعيًا بأج"
+        android:label="تطبيق عدل للمحاماة - الاستشارات القانونية وتوثيق العقود"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
         <activity

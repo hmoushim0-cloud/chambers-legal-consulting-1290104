@@ -61,10 +61,10 @@ class ChambersLegalViewModel(
     fun addToCart(item: ChambersLegalItem) = manageCartUseCase.add(item)
     fun removeFromCart(item: ChambersLegalItem) = manageCartUseCase.remove(item)
 
-    fun checkout() {
+    fun checkout(paymentMethod: String = "Mada Contactless EMV") {
         viewModelScope.launch {
             _uiState.update { it.copy(isCheckingOut = true) }
-            val order = processCheckoutUseCase()
+            val order = processCheckoutUseCase(paymentMethod)
             _uiState.update { it.copy(isCheckingOut = false, lastOrder = order, activeTab = "checkout") }
         }
     }

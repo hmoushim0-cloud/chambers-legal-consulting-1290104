@@ -27,6 +27,7 @@ fun HomeScreen(
     onItemClick: (ChambersLegalItem) -> Unit
 ) {
     val categories = listOf("الكل", "الخدمات الرئيسية", "المراقبة الحية", "التقارير الضريبية", "الإعدادات")
+    val defaultPeripheral = "FIPS 140-2 Cryptographic HSM Security Token"
 
     Column(
         modifier = Modifier
@@ -36,7 +37,7 @@ fun HomeScreen(
     ) {
         // Header
         Column {
-            Text("تطبيق عدل للمحاماة — كتابة 150 سؤالًا مرجعيًا بأج", fontSize = 22.sp, fontWeight = FontWeight.Black, color = BrandTextPrimary)
+            Text("تطبيق عدل للمحاماة - الاستشارات والتوثيق الرقمي", fontSize = 22.sp, fontWeight = FontWeight.Black, color = BrandTextPrimary)
             Text("منظومة legal_consulting المتكاملة مع ربط FIPS 140-2 Cryptographic HSM Security Token", fontSize = 12.sp, color = BrandTextSecondary)
         }
 
@@ -52,7 +53,7 @@ fun HomeScreen(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("العتاد الحي: ${state.telemetry?.peripheralName ?: 'FIPS 140-2 Cryptographic HSM Security Token'}", fontWeight = FontWeight.Bold, color = BrandPrimary, fontSize = 13.sp)
+                    Text("العتاد الحي: ${state.telemetry?.peripheralName ?: defaultPeripheral}", fontWeight = FontWeight.Bold, color = BrandPrimary, fontSize = 13.sp)
                     Text(state.telemetry?.liveReading ?: "FIPS 140-2 Cryptographic HSM Security Token: ONLINE | READY", fontSize = 11.sp, color = BrandTextSecondary)
                 }
                 Badge(containerColor = BrandPrimary) {
@@ -73,7 +74,7 @@ fun HomeScreen(
                     Text(
                         text = cat,
                         color = if (isSelected) Color.Black else BrandTextSecondary,
-                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                         fontSize = 12.sp,
                         modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp)
                     )
@@ -81,41 +82,48 @@ fun HomeScreen(
             }
         }
 
-        // Active Items List
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxSize()) {
-            items(state.filteredCatalog) { item ->
+        // Service Catalog List
+        val filteredList = if (state.selectedCategory == "الكل") {
+            state.catalog
+        } else {
+            state.catalog.filter { it.category == state.selectedCategory }
+        }
+
+        LazyColumn(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            items(filteredList) { item ->
                 Card(
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(14.dp),
                     colors = CardDefaults.cardColors(containerColor = BrandSurface),
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable { onItemClick(item) }
                 ) {
                     Row(
-                        modifier = Modifier.padding(16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                        modifier = Modifier.padding(14.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Text(item.title, fontWeight = FontWeight.Bold, color = BrandTextPrimary, fontSize = 15.sp)
-                                Surface(shape = RoundedCornerShape(6.dp), color = BrandPrimary.copy(alpha = 0.2f)) {
-                                    Text(item.badge, fontSize = 9.sp, color = BrandPrimary, modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp))
-                                }
+                            Text(item.title, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = BrandTextPrimary)
+                            Text(item.description, fontSize = 12.sp, color = BrandTextSecondary)
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Badge(containerColor = BrandCard) {
+                                Text(item.badge, fontSize = 10.sp, color = BrandTextSecondary, modifier = Modifier.padding(2.dp))
                             }
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(item.description, fontSize = 12.sp, color = BrandTextSecondary, maxLines = 2)
                         }
                         Column(horizontalAlignment = Alignment.End) {
                             Text("${item.priceSar} ر.س", fontWeight = FontWeight.Black, color = BrandSecondary, fontSize = 14.sp)
-                            Spacer(modifier = Modifier.height(6.dp))
+                            Spacer(modifier = Modifier.height(4.dp))
                             Button(
-                                onClick = { viewModel.addToCart(item) },
+                                onClick = { onItemClick(item) },
                                 colors = ButtonDefaults.buttonColors(containerColor = BrandPrimary),
                                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
                                 shape = RoundedCornerShape(8.dp)
                             ) {
-                                Text("إضافة", fontSize = 11.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+                                Text("إضافة", color = Color.Black, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
